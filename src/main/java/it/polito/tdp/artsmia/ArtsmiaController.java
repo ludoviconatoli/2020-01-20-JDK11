@@ -1,8 +1,10 @@
 package it.polito.tdp.artsmia;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.artsmia.model.Adiacenza;
 import it.polito.tdp.artsmia.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -31,7 +33,7 @@ public class ArtsmiaController {
     private Button btnCalcolaPercorso;
 
     @FXML
-    private ComboBox<?> boxRuolo;
+    private ComboBox<String> boxRuolo;
 
     @FXML
     private TextField txtArtista;
@@ -42,7 +44,28 @@ public class ArtsmiaController {
     @FXML
     void doArtistiConnessi(ActionEvent event) {
     	txtResult.clear();
-    	txtResult.appendText("Calcola artisti connessi");
+    	
+    	String ruolo = this.boxRuolo.getValue();
+    	if(ruolo == null) {
+    		this.txtResult.setText("Prima seleziona un ruoloe crea il grafo");
+    		return;
+    	}
+    
+    	if(model.getNVertici() == 0) {
+    		this.txtResult.setText("Prima crea il grafo");
+    		return;
+    	}
+    	
+    	this.txtResult.appendText("Archi del grafo: \n\n");
+    	List<Adiacenza> res = model.getArchi(ruolo);
+    	if(res != null) {
+    		for(Adiacenza a: res) {
+        		this.txtResult.appendText(a.toString() + "\n");
+        	}
+    	}else {
+    		this.txtResult.appendText("Non ci sono archi nel grafo!");
+    	}
+    	
     }
 
     @FXML
@@ -54,11 +77,23 @@ public class ArtsmiaController {
     @FXML
     void doCreaGrafo(ActionEvent event) {
     	txtResult.clear();
-    	txtResult.appendText("Crea grafo");
+    	
+    	String ruolo = this.boxRuolo.getValue();
+    	if(ruolo == null) {
+    		this.txtResult.setText("Prima seleziona un ruolo");
+    		return;
+    	}
+    	
+    	model.creaGrafo(ruolo);
+    	txtResult.appendText("Creato grafo\n\n");
+    	this.txtResult.appendText("#vertici: " + model.getNVertici() + "\n");
+    	txtResult.appendText("#archi: " + model.getNArchi());
     }
 
     public void setModel(Model model) {
     	this.model = model;
+    	this.boxRuolo.getItems().addAll(model.getRuoli());
+    	this.txtResult.setStyle("-fx-font-family: monospace");
     }
 
     
