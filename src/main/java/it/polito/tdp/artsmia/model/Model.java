@@ -69,4 +69,54 @@ public class Model {
 			return null;
 		}
 	}
+	
+	private List<Artist> percorsoMigliore;
+	private double pesoMigliore;
+	
+	public List<Artist> calcolaCamminoLungo(int id){
+		
+		
+		if(!idMap.containsKey(id)) {
+			return null;
+		}else {
+			Artist start = idMap.get(id);
+			List<Artist> parziale = new ArrayList<>();
+			percorsoMigliore = new ArrayList<>();
+			parziale.add(start);
+			
+			cerca(parziale, -1);
+			
+			return percorsoMigliore;
+		}
+	}
+
+	private void cerca(List<Artist> parziale, double peso) {
+		
+		Artist ultimo = parziale.get(parziale.size()-1);
+		List<Artist> vicini = Graphs.neighborListOf(grafo, ultimo);
+		
+		for(Artist vicino: vicini) {
+			if(!parziale.contains(vicino) && peso == -1) {
+				
+				parziale.add(vicino);
+				cerca(parziale, (int) this.grafo.getEdgeWeight(this.grafo.getEdge(ultimo, vicino)));
+				parziale.remove(vicino);
+			}else {
+				if(!parziale.contains(vicino) && this.grafo.getEdgeWeight(this.grafo.getEdge(ultimo, vicino)) == peso) {
+					parziale.add(vicino);
+					cerca(parziale, peso);
+					parziale.remove(vicino);
+				}
+			}
+		}
+		
+		if(parziale.size() > percorsoMigliore.size()) {
+			this.percorsoMigliore = new ArrayList<>(parziale);
+			pesoMigliore = peso;
+		}
+	}
+	
+	public double getPesoMigliore() {
+		return this.pesoMigliore;
+	}
 }
